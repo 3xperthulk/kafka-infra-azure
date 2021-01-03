@@ -1,30 +1,30 @@
 # Create virtual machine
 resource "azurerm_linux_virtual_machine" "myterraformvm" {
     count                 = var.deviceCount
-    name                  = "kafka${count.index}"
+    name                  = concat(var.VMName,"${count.index}")
     location              = var.locationName
     resource_group_name   = azurerm_resource_group.myterraformgroup.name
     network_interface_ids = [element(azurerm_network_interface.myterraformnic.*.id, count.index)]
-    size                  = "Standard_DS1_v2"
-    computer_name         = "kafka${count.index}"
-    admin_username        = "azureuser"
+    size                  = var.VMSize
+    computer_name         = concat(var.ComputerName,"${count.index}")
+    admin_username        = var.adminUsername
     disable_password_authentication = true
 
     os_disk {
-        name              = "myOsDisk{count.index}"
-        caching           = "ReadWrite"
-        storage_account_type = "Premium_LRS"
+        name              = concat(var.osDiskName,"{count.index}") 
+        caching           = var.osDiskCaching
+        storage_account_type = var.osDiskStorageAccountType
     }
 
     source_image_reference {
-        publisher = "Canonical"
-        offer     = "UbuntuServer"
-        sku       = "18.04-LTS"
-        version   = "latest"
+        publisher = var.sourceImageReferencePublisher
+        offer     = var.sourceImageReferenceOffer
+        sku       = var.sourceImageReferenceSku
+        version   = var.sourceImageReferenceVersion
     }
 
     admin_ssh_key {
-        username       = "azureuser"
+        username       = var.adminUsername
         public_key = file("D:\\/id_rsa.pub")
     }
     boot_diagnostics {

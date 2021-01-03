@@ -1,7 +1,7 @@
 # Create virtual network
 resource "azurerm_virtual_network" "myterraformnetwork" {
-    name                = "myVnet"
-    address_space       = ["10.0.0.0/16"]
+    name                = var.vnetName
+    address_space       = [var.vnetAddressSpace]
     location            = var.locationName
     resource_group_name = azurerm_resource_group.myterraformgroup.name
 
@@ -12,19 +12,19 @@ resource "azurerm_virtual_network" "myterraformnetwork" {
 
 # Create subnet
 resource "azurerm_subnet" "myterraformsubnet" {
-    name                 = "mySubnet"
+    name                 = var.subnetName
     resource_group_name  = azurerm_resource_group.myterraformgroup.name
     virtual_network_name = azurerm_virtual_network.myterraformnetwork.name
-    address_prefixes       = ["10.0.1.0/24"]
+    address_prefixes       = [var.subnetAddressSpace]
 }
 
 # Create public IPs
 resource "azurerm_public_ip" "myterraformpublicip" {
     count                        = var.deviceCount
-    name                         = "myPublicIP${count.index}"
+    name                         = concat(var.publicIpName,"${count.index}")
     location                     = var.locationName
     resource_group_name          = azurerm_resource_group.myterraformgroup.name
-    allocation_method            = "Dynamic"
+    allocation_method            = var.publicIpAllocationMethod
 
     tags = {
         environment = var.environment
@@ -33,7 +33,7 @@ resource "azurerm_public_ip" "myterraformpublicip" {
 
 # Create Network Security Group and rule
 resource "azurerm_network_security_group" "myterraformnsg" {
-    name                = "myNetworkSecurityGroup"
+    name                = var.networkSecurityGroup
     location            = var.locationName
     resource_group_name = azurerm_resource_group.myterraformgroup.name
 
@@ -57,15 +57,15 @@ resource "azurerm_network_security_group" "myterraformnsg" {
 # Create network interface
 resource "azurerm_network_interface" "myterraformnic" {
     count                     = var.deviceCount
-    name                      = "myNIC${count.index}"
+    name                      = concat(var.NIC,"${count.index}")
     location                  = var.locationName
     resource_group_name       = azurerm_resource_group.myterraformgroup.name
 
     ip_configuration {
-        name                          = "myNicConfiguration"
+        name                          = var.NicConfiguration
         subnet_id                     = azurerm_subnet.myterraformsubnet.id
-        private_ip_address_allocation = "Dynamic"
-        public_ip_address_id          = azurerm_public_ip.myterraformpublicip.*.id[count.index]  #[element(azurerm_public_ip.myterraformsubnet.*.id, count.index)]
+        private_ip_address_allocation = var.privateIpAllocationMethod
+        public_ip_address_id          = azurerm_public_ip.myterraformpublicip.*.id[count.index]  
     }
 
     tags = {

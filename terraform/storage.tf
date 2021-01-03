@@ -10,11 +10,11 @@ resource "random_id" "randomId" {
 
 # Create storage account for boot diagnostics
 resource "azurerm_storage_account" "mystorageaccount" {
-    name                        = "diag${random_id.randomId.hex}"
+    name                        = concate(var.storageAccountName,"${random_id.randomId.hex}")
     resource_group_name         = azurerm_resource_group.myterraformgroup.name
     location                    = var.locationName
-    account_tier                = "Standard"
-    account_replication_type    = "LRS"
+    account_tier                = var.storageAccountTier
+    account_replication_type    = var.storageAccountType
 
     tags = {
         environment = var.environment
