@@ -14,6 +14,24 @@ variable "environment" {
   default="kafka"
 }
 
+#Credentials
+
+variable "ARM_CLIENT_ID" {
+  type=string
+}
+
+variable "ARM_CLIENT_SECRET" {
+  type=string
+}
+
+variable "ARM_TENANT_ID" {
+  type=string
+}
+
+variable "ARM_SUBSCRIPTION_ID" {
+  type=string
+}
+
 #Network
 variable "deviceCount" {
   type=number
@@ -146,5 +164,5 @@ variable "sourceImageReferenceVersion" {
 
 variable "sshFilePath" {
   type=string
-  default="D:\\/id_rsa.pub"
+  default="./id_rsa.pub"
 }
